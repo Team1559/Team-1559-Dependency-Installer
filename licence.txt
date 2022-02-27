@@ -1,0 +1,1 @@
+This will install all necessary dependencies for team 1559 to your system, The Cosmic Goat LLC is not responsible for any instability or crashes caused by running this installer.
