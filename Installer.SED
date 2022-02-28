@@ -21,9 +21,9 @@ AdminQuietInstCmd=%AdminQuietInstCmd%
 UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
 [Strings]
-InstallPrompt=Do you want to install dependencies for Team 1559?
+InstallPrompt=Do You Want To Install Dependencies For Team 1559?
 DisplayLicense=C:\Users\meilu\Desktop\Nudes\1559Installer-online\licence.txt
-FinishMessage=
+FinishMessage=Thanks For Using The Dependency Installer
 TargetName=C:\Users\meilu\Desktop\Nudes\1559Installer-online\Team 1559 Dependency Installer.exe
 FriendlyName=Team 1559 Dependencies Installer
 AppLaunched=c.exe /c start.bat
@@ -34,6 +34,7 @@ FILE0="ba.zip"
 FILE1="clone.bat"
 FILE2="start.bat"
 FILE3="c.exe"
+FILE4="rem.bat"
 [SourceFiles]
 SourceFiles0=C:\Users\meilu\Desktop\Nudes\1559Installer-online\
 [SourceFiles0]
@@ -41,3 +42,4 @@ SourceFiles0=C:\Users\meilu\Desktop\Nudes\1559Installer-online\
 %FILE1%=
 %FILE2%=
 %FILE3%=
+%FILE4%=

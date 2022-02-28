@@ -19,13 +19,6 @@ if "%ask%"=="" (call set ask=n)
 if "%ask%"=="N" (call set ask=n)
 if "%ask%"=="n" (echo Please Pick Which Components You Want To Install) else (call :autoselected)
 if "%ask%"=="n" (call :manual) else (call :auto)
-echo Finished Installing Dependencies
-echo Do You Want To Remove Temporary Files?
-set /p remove=""
-if "%remove%"=="" (call set remove=n)
-if "%remove%"=="N" (call set remove=n)
-if "%remove%"=="n" (call echo Leaving Temporary Files) else (call :remove)
-pause
 move nul 2>&0
 EXIT /B 0
 
@@ -145,11 +138,5 @@ EXIT /B 0
 	cd %directory%
 	powershell Expand-Archive ds.zip -DestinationPath %directory%
 	powershell %directory%\driverstation.exe
-	exit /b 0
-
-:remove
-	echo Removing Temporary Directory 
-	set target=C:\tmp\1559-Dependency-Installer\tmp
-	powershell Remove-Item -Path %target% -Force -Recurse >$null
 	exit /b 0
 
