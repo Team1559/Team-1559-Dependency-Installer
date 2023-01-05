@@ -104,7 +104,8 @@ EXIT /B 0
 	exit /b 0
 
 :auto
-	powershell %directory%\bitsadmin.exe /transfer WPI /download /priority foreground https://www.rylanswebdav.cf/publicdocuments/files/frc/wpilib.iso %directory%\wpilib.iso
+	powershell %directory%\bitsadmin.exe /transfer WPI /download /priority foreground
+	wpilib.iso %directory%\wpilib.iso
 	powershell Mount-DiskImage -ImagePath "%directory%\wpilib.iso" >Nul
 	for %%a in (D E F G H I J K L M N O P Q R S T U V W X Y Z) do if exist %%a:\WPILibInstaller.exe (call set mp=%%a)
 	powershell Copy-Item -Path !mp!:\* -Destination %directory% -PassThru >Nul
