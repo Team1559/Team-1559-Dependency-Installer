@@ -20,15 +20,15 @@ def importer(package: str):
 
 def install(package: list[str], operating_system: str, year: str):
     for i in package:
+        mkdir(i)
+        cd(i)
         unzip(f"{i}.zip")
         if i == "wpi":
+
             if operating_system == "windows":
                 run("WPILibInstaller.exe", operating_system)
 
-            elif operating_system == "linux":
-                run("WPILibInstaller", operating_system)
-
-            else:
+            elif operating_system == "macos":
                 run("WPILibInstaller.dmg", operating_system)
 
         elif i == "navx":
@@ -36,9 +36,38 @@ def install(package: list[str], operating_system: str, year: str):
                 cd("navx")
                 run("NavXInstaller.exe", operating_system)
                 cd("..")
-
             else:
                 navx_installer(year)
+        elif i == "rev":
+            if operating_system == "windows":
+                rev_windows_installer(year)
+            else:
+                rev_other_installer(year)
+        elif i == "revhc":
+            run("rev.exe", operating_system)
+
+        cd("..")
+
+def cp(source: str, destination: str):
+    shutil.copy(source, destination)
+
+
+def cpdir(source: str, destination: str):
+    shutil.copytree(source, destination)
+
+
+def rev_windows_installer(year):
+    rm(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics")
+    mkdir(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics")
+    mkdir(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics\\frc\\")
+    cpdir("rev\\maven\\com\\revrobotics\\frc", f"C:\\Users\\Public\\wpilib\\"
+                                                         f"{year}\\maven\\com\\revrobotics\\frc\\")
+    rm(f"C:\\Users\\Public\\wpilib\\2021\\vendordeps\\REVLib.json")
+    cp("rev\\vendordeps\\REVLib.json", f"C:\\Users\\Public\\wpilib\\{year}\\vendordeps\\REVLib.json")
+
+
+def rev_other_installer(year):
+    print("still in progress")
 
 
 def unzip(file: str):
@@ -311,20 +340,22 @@ def navx_installer(year: str):
 
 
 def main():
+    operating_system = get_os()
+    if operating_system == "linux":
+        exit(2)
     importer('requests')
     main_address = "https://www.rylanswebdav.cf/publicdocuments/files/frc"
     mkdir("ltd")
     mkdir('tmp')
     cd('tmp')
 
-    operating_system = get_os()
     year = get_year(main_address)
 
     packages = init(operating_system)
 
     download_queue = list(packages)
-
-    print("Downloading Packages")
+    if len(download_queue) > 0:
+        print("Downloading Packages")
     mp_downloader(download_queue, main_address, year, operating_system)
     print("Download Finished")
     try:
