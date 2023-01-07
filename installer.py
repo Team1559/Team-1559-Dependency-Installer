@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import multiprocessing as mp
+import time
 from zipfile import ZipFile
 import platform
 from typing import *
@@ -19,8 +20,11 @@ def importer(package: str):
 
 
 def install(package: list[str], operating_system: str, year: str):
+
     for i in package:
+        cd(f"{home_dir}/tmp")
         mkdir(i)
+        cp(f"{i}.zip", i)
         cd(i)
         unzip(f"{i}.zip")
         if i == "wpi":
@@ -33,11 +37,15 @@ def install(package: list[str], operating_system: str, year: str):
 
         elif i == "navx":
             if operating_system == "windows":
-                cd("navx")
-                run("NavXInstaller.exe", operating_system)
-                cd("..")
+                run("setup.exe", operating_system)
             else:
                 navx_installer(year)
+        elif i == "ctre":
+            if operating_system == "windows":
+                run("cf.exe", operating_system)
+            else:
+                ctre_installer(year)
+
         elif i == "rev":
             if operating_system == "windows":
                 rev_windows_installer(year)
@@ -45,8 +53,13 @@ def install(package: list[str], operating_system: str, year: str):
                 rev_other_installer(year)
         elif i == "revhc":
             run("rev.exe", operating_system)
+        elif i == "ds":
+            run("driverstation.exe", operating_system)
 
-        cd("..")
+
+def ctre_installer(year: str):
+    print("still in progress")
+
 
 def cp(source: str, destination: str):
     shutil.copy(source, destination)
@@ -57,11 +70,10 @@ def cpdir(source: str, destination: str):
 
 
 def rev_windows_installer(year):
-    rm(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics")
-    mkdir(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics")
-    mkdir(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics\\frc\\")
+    rmdir(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics\\frc")
+    mkdir(f"C:\\Users\\Public\\wpilib\\{year}\\maven\\com\\revrobotics\\frc")
     cpdir("rev\\maven\\com\\revrobotics\\frc", f"C:\\Users\\Public\\wpilib\\"
-                                                         f"{year}\\maven\\com\\revrobotics\\frc\\")
+                                               f"{year}\\maven\\com\\revrobotics\\frc")
     rm(f"C:\\Users\\Public\\wpilib\\2021\\vendordeps\\REVLib.json")
     cp("rev\\vendordeps\\REVLib.json", f"C:\\Users\\Public\\wpilib\\{year}\\vendordeps\\REVLib.json")
 
@@ -136,6 +148,8 @@ def mkdir(directory: str):
             os.mkdir(i)
         except FileExistsError:
             pass
+        except FileNotFoundError:
+            pass
         if len(directory) > 1:
             cd(i)
     for i in range(len(directory)):
@@ -179,6 +193,9 @@ def init(operating_system: str):
     if get_normalized_input("do you want to install all available packages?") != "n":
         do_all = True
         output = available_packages
+        if operating_system == 'windows':
+            output.append("ds")
+            output.append("revhc")
     else:
         if get_normalized_input("do you want to install wpilib?") != "n":
             output.append("wpi")
@@ -187,13 +204,12 @@ def init(operating_system: str):
         if get_normalized_input("do you want to install rev?") != "n":
             output.append("rev")
         if get_normalized_input("do you want to install ctre?") != "n":
-            output.append("wpi")
+            output.append("ctre")
         if operating_system == 'windows':
-            if do_all:
-                output.append("ds")
+            if get_normalized_input("do you want to install the rev hardware client?") != "n":
                 output.append("revhc")
-            elif get_normalized_input("do you want to install the driver station?") != "n":
-                output.append("ds")
+                if get_normalized_input("do you want to install the driver station?") != "n":
+                    output.append("ds")
 
     return output
 
@@ -234,10 +250,14 @@ def get_year(address: str):
     return year
 
 
-def exiter(code: int):
+def exiter(code: int = 0):
     cd(home_dir)
+    time.sleep(3)
     if get_normalized_input("do you want to remove temporary data?") != "n":
-        rmdir("tmp")
+        try:
+            rmdir("tmp")
+        except PermissionError:
+            os.system("rm -r tmp")
     exit(code)
 
 
@@ -340,24 +360,33 @@ def navx_installer(year: str):
 
 
 def main():
+    rm(f"{home_dir}/ltd/log.txt")
     operating_system = get_os()
     if operating_system == "linux":
+        print("Linux is not supported yet")
         exit(2)
+    elif operating_system == "macos":
+        print("MacOS is still wip")
+        exit(2)
+    else:
+        print("Photonvision and the swerve-drive libraries are still a wip")
     importer('requests')
     main_address = "https://www.rylanswebdav.cf/publicdocuments/files/frc"
     mkdir("ltd")
+    rmdir("tmp")
     mkdir('tmp')
     cd('tmp')
 
     year = get_year(main_address)
 
     packages = init(operating_system)
-
     download_queue = list(packages)
     if len(download_queue) > 0:
         print("Downloading Packages")
     mp_downloader(download_queue, main_address, year, operating_system)
     print("Download Finished")
+
+    install(download_queue, operating_system, year)
     try:
         file = open(f"{home_dir}/ltd/log.txt", "r")
         data = file.readlines()
@@ -375,4 +404,7 @@ if __name__ == '__main__':
     mkdir("Team1559-Dependencies-Installer")
     cd("Team1559-Dependencies-Installer")
     home_dir = f"{pwd()}"
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        exiter(1)
