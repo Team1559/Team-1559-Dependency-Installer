@@ -409,8 +409,8 @@ def init(operating_system: str):
         if operating_system == 'windows':
             if get_normalized_input("Do you want to install the rev hardware client?") != "n":
                 output.append("revhc")
-                if get_normalized_input("Do you want to install the driver station?") != "n":
-                    output.append("ds")
+            if get_normalized_input("Do you want to install the driver station?") != "n":
+                output.append("ds")
 
     return output
 
